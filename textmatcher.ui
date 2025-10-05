@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TextFinder</class>
- <widget class="QWidget" name="TextFinder">
+ <class>TextMatcher</class>
+ <widget class="QWidget" name="TextMatcher">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>TextFinder</string>
+   <string>TextMatcher</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
@@ -49,6 +49,13 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="statusLabel">
+      <property name="text">
+       <string>Matches: 0/0</string>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QTextEdit" name="textEdit"/>
