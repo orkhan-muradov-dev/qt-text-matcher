@@ -1,12 +1,14 @@
 # Qt Text Matcher
 
 A small Qt Widgets application for searching and matching text inside files.
-Started from the Qt "Text Finder" tutorial and evolved into a local text-matching utility.
+Evolved from the Qt "Text Finder" tutorial into **TextMatcher** with enhanced UX.
 
 ## Features
-- Simple Qt Widgets UI (line edit + find button + QTextEdit)
-- Loads initial text from resource (input.txt)
-- Whole-word search with wrap-around
+- Qt Widgets UI (QLineEdit + Find button + QTextEdit)
+- Whole-word search with wrap-around behavior
+- Match counting with a status label: shows current match index and total (e.g., `Matches: 3/10`)
+- Loads initial content from Qt resources (`:/input.txt`)
+- Simple, easy-to-understand codebase for learning Qt Widgets and I/O
 
 ## Build (CMake + Qt)
 Requires Qt 5 or Qt 6 and CMake >= 3.16.
@@ -16,4 +18,4 @@ mkdir build
 cd build
 cmake ..
 cmake --build .
-./TextFinder
+./TextMatcher
