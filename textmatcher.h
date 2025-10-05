@@ -2,6 +2,7 @@
 #define TEXTMATCHER_H
 
 #include <QWidget>
+#include <QRegularExpression>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class TextMatcher; }
@@ -16,27 +17,33 @@ public:
     ~TextMatcher();
 
 private slots:
-    void on_findButton_clicked();
+    void handleFindClicked();
 
 private:
+    // --- UI Pointer ---
     Ui::TextMatcher *ui;
 
-    // State Variables
+    // --- State Variables ---
     size_t m_totalMatches = 0;
-    QString m_lastSearchString;
+    QString m_lastRegexString;
+    QRegularExpression::PatternOptions m_lastRegexOptions;
 
-    // Cursor Utility
+    // --- Cursor Utility ---
     void moveCursorToStart();
+    void clearTextSelection();
 
-    // Status Management
+    // --- Status Management ---
+    void resetSearchState();
     void updateStatusLabel(size_t currentMatchIndex, size_t totalMatches);
 
-    // Match calculator
-    size_t countMatches(const QString &searchString, bool stopAtCurrentSelection) const;
-    size_t calculateTotalMatches(const QString &searchString) const;
-    size_t calculateCurrentMatchIndex(const QString &searchString) const;
+    // --- Match Calculation ---
+    QString createRegexString(const QString &searchString) const;
+    size_t countMatches(const QRegularExpression &regex, bool stopAtCurrentSelection) const;
+    size_t calculateTotalMatches(const QRegularExpression &regex) const;
+    size_t calculateCurrentMatchIndex(const QRegularExpression &regex) const;
 
-    // File I/O
+    // --- File I/O ---
     void loadTextFile();
 };
+
 #endif // TEXTMATCHER_H

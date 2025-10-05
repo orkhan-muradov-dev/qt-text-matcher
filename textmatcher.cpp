@@ -4,12 +4,16 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QTextDocument>
+#include <QRegularExpression>
 
 TextMatcher::TextMatcher(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::TextMatcher)
 {
     ui->setupUi(this);
+
+    connect(ui->findButton, &QPushButton::clicked, this, &TextMatcher::handleFindClicked);
+
     loadTextFile();
 }
 
@@ -18,7 +22,7 @@ TextMatcher::~TextMatcher()
     delete ui;
 }
 
-// Cursor Utility
+// --- Cursor Utility ---
 
 void TextMatcher::moveCursorToStart()
 {
@@ -27,7 +31,23 @@ void TextMatcher::moveCursorToStart()
     ui->textEdit->setTextCursor(cursor);
 }
 
-// Status Management
+void TextMatcher::clearTextSelection()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.clearSelection();
+    ui->textEdit->setTextCursor(cursor);
+}
+
+// --- Status Management ---
+
+void TextMatcher::resetSearchState()
+{
+    clearTextSelection();
+    m_totalMatches = 0;
+    m_lastRegexString.clear();
+    m_lastRegexOptions = QRegularExpression::NoPatternOption;
+    updateStatusLabel(0, 0);
+}
 
 void TextMatcher::updateStatusLabel(size_t currentMatchIndex, size_t totalMatches)
 {
@@ -35,11 +55,22 @@ void TextMatcher::updateStatusLabel(size_t currentMatchIndex, size_t totalMatche
     ui->statusLabel->setText(statusText);
 }
 
-// Match calculator
+// --- Match Calculation ---
 
-size_t TextMatcher::countMatches(const QString &searchString, bool stopAtCurrentSelection) const
+QString TextMatcher::createRegexString(const QString &searchString) const
 {
-    if (searchString.isEmpty()) {
+    QString escapedString = QRegularExpression::escape(searchString);
+
+    if (ui->wholeWordCheckbox->isChecked()) {
+        return QStringLiteral("\\b") + escapedString + QStringLiteral("\\b");
+    } else {
+        return escapedString;
+    }
+}
+
+size_t TextMatcher::countMatches(const QRegularExpression &regex, bool stopAtCurrentSelection) const
+{
+    if (regex.pattern().isEmpty()) {
         return 0;
     }
 
@@ -47,11 +78,11 @@ size_t TextMatcher::countMatches(const QString &searchString, bool stopAtCurrent
     QTextCursor findCursor(ui->textEdit->document());
     const QTextCursor &currentSelection = ui->textEdit->textCursor();
 
-    while (!(findCursor = ui->textEdit->document()->find(searchString, findCursor, QTextDocument::FindWholeWords)).isNull()) {
+    while (!(findCursor = ui->textEdit->document()->find(regex, findCursor)).isNull()) {
         count++;
 
         if (stopAtCurrentSelection) {
-            if (findCursor.hasSelection() && findCursor.selectionEnd() == currentSelection.selectionEnd()) {
+            if (findCursor.selectionEnd() == currentSelection.selectionEnd()) {
                 break;
             }
         }
@@ -60,17 +91,17 @@ size_t TextMatcher::countMatches(const QString &searchString, bool stopAtCurrent
     return count;
 }
 
-size_t TextMatcher::calculateTotalMatches(const QString &searchString) const
+size_t TextMatcher::calculateTotalMatches(const QRegularExpression &regex) const
 {
-    return countMatches(searchString, false);
+    return countMatches(regex, false);
 }
 
-size_t TextMatcher::calculateCurrentMatchIndex(const QString &searchString) const
+size_t TextMatcher::calculateCurrentMatchIndex(const QRegularExpression &regex) const
 {
-    return countMatches(searchString, true);
+    return countMatches(regex, true);
 }
 
-// FILE I/O
+// --- FILE I/O ---
 
 void TextMatcher::loadTextFile()
 {
@@ -89,32 +120,53 @@ void TextMatcher::loadTextFile()
     ui->textEdit->setPlainText(line);
     moveCursorToStart();
 
-    updateStatusLabel(0, 0);
+    resetSearchState();
 }
 
-// FIND LOGIC
+// --- FIND LOGIC ---
 
-void TextMatcher::on_findButton_clicked()
+void TextMatcher::handleFindClicked()
 {
     QString searchString = ui->lineEdit->text();
 
-    if (searchString != m_lastSearchString) {
-        m_totalMatches = calculateTotalMatches(searchString);
-        m_lastSearchString = searchString;
+    // Stage 1: Input Check and Early Exit
+    if (searchString.isEmpty()) {
+        resetSearchState();
+        return;
+    }
+
+    QString regexString = createRegexString(searchString);
+    QRegularExpression::PatternOptions currentOptions = QRegularExpression::NoPatternOption;
+    if (!ui->caseSensitiveCheckbox->isChecked()) {
+        currentOptions |= QRegularExpression::CaseInsensitiveOption;
+    }
+    QRegularExpression regex(regexString, currentOptions);
+
+    if (!regex.isValid()) {
+        qWarning() << "Error: Invalid regular expression generated:" << regex.errorString();
+        resetSearchState();
+        return;
+    }
+
+    // Stage 2: State Check (Is this a new search?)
+    if (regexString != m_lastRegexString || currentOptions != m_lastRegexOptions) {
+        m_totalMatches = calculateTotalMatches(regex);
+        m_lastRegexString = regexString;
+        m_lastRegexOptions = currentOptions;
         moveCursorToStart();
 
         if (m_totalMatches == 0) {
-            updateStatusLabel(0, 0);
+            resetSearchState();
             return;
         }
     }
 
-    if (!ui->textEdit->find(searchString, QTextDocument::FindWholeWords)) {
+    // Stage 3: Execute Find and Update Status
+    if (!ui->textEdit->find(regex)) {
         moveCursorToStart();
-        ui->textEdit->find(searchString, QTextDocument::FindWholeWords);
+        ui->textEdit->find(regex);
     }
 
-    size_t currentMatchIndex = calculateCurrentMatchIndex(searchString);
-
+    size_t currentMatchIndex = calculateCurrentMatchIndex(regex);
     updateStatusLabel(currentMatchIndex, m_totalMatches);
 }
