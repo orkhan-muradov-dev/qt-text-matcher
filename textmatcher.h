@@ -18,7 +18,8 @@ public:
     ~TextMatcher();
 
 private slots:
-    void handleFindClicked();
+    void handleFindNext();
+    void handleFindPrevious();
 
 private:
     // --- UI Pointer ---
@@ -38,6 +39,7 @@ private:
 
     // --- Cursor Utility ---
     void moveCursorToStart();
+    void moveCursorToEnd();
     void clearTextSelection();
 
     // --- Status Management ---
@@ -52,8 +54,12 @@ private:
     size_t calculateTotalMatches(const SearchOptions &search) const;
     size_t calculateCurrentMatchIndex(const SearchOptions &search) const;
 
-    // --- Highlighting ---
+    // produce flags used for forward iteration (mask out FindBackward)
+    QTextDocument::FindFlags iterateFlagsFor(const SearchOptions &search) const;
+
     void highlightAllMatches(const SearchOptions &search, size_t currentMatchIndex);
+
+    void performFind(bool backwards);
 
     // --- File I/O ---
     void loadTextFile();

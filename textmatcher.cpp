@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
+#include <QShortcut>
 
 TextMatcher::TextMatcher(QWidget *parent)
     : QWidget(parent)
@@ -10,10 +11,16 @@ TextMatcher::TextMatcher(QWidget *parent)
 {
     ui->setupUi(this);
 
-    auto triggerFind = [this]() { handleFindClicked(); };
+    // Buttons
+    connect(ui->findNextButton, &QPushButton::clicked, this, &TextMatcher::handleFindNext);
+    connect(ui->findPrevButton, &QPushButton::clicked, this, &TextMatcher::handleFindPrevious);
 
-    connect(ui->findButton, &QPushButton::clicked, this, triggerFind);
-    connect(ui->lineEdit, &QLineEdit::returnPressed, this, triggerFind);
+    // Enter in the search field => Find Next
+    connect(ui->lineEdit, &QLineEdit::returnPressed, this, &TextMatcher::handleFindNext);
+
+    // Keyboard shortcuts: Up/Down = previous/next
+    new QShortcut(QKeySequence(Qt::Key_Up), this, SLOT(handleFindPrevious()));
+    new QShortcut(QKeySequence(Qt::Key_Down), this, SLOT(handleFindNext()));
 
     loadTextFile();
 }
@@ -27,16 +34,23 @@ TextMatcher::~TextMatcher()
 
 void TextMatcher::moveCursorToStart()
 {
-    QTextCursor cursor = ui->textEdit->textCursor();
-    cursor.movePosition(QTextCursor::Start);
-    ui->textEdit->setTextCursor(cursor);
+    QTextCursor c = ui->textEdit->textCursor();
+    c.movePosition(QTextCursor::Start);
+    ui->textEdit->setTextCursor(c);
+}
+
+void TextMatcher::moveCursorToEnd()
+{
+    QTextCursor c = ui->textEdit->textCursor();
+    c.movePosition(QTextCursor::End);
+    ui->textEdit->setTextCursor(c);
 }
 
 void TextMatcher::clearTextSelection()
 {
-    QTextCursor cursor = ui->textEdit->textCursor();
-    cursor.clearSelection();
-    ui->textEdit->setTextCursor(cursor);
+    QTextCursor c = ui->textEdit->textCursor();
+    c.clearSelection();
+    ui->textEdit->setTextCursor(c);
 }
 
 // --- Status Management ---
@@ -79,7 +93,7 @@ TextMatcher::SearchOptions TextMatcher::buildSearchOptions(const QString &search
                                : QRegularExpression::CaseInsensitiveOption);
     opts.regex = QRegularExpression(pattern, opts.patternOptions);
 
-    // Find flags setup
+    // Find flags setup (FindBackward is added by performFind when requested)
     opts.flags = (ui->caseSensitiveCheckbox->isChecked()
                       ? QTextDocument::FindCaseSensitively
                       : QTextDocument::FindFlags());
@@ -87,16 +101,22 @@ TextMatcher::SearchOptions TextMatcher::buildSearchOptions(const QString &search
     return opts;
 }
 
+QTextDocument::FindFlags TextMatcher::iterateFlagsFor(const SearchOptions &search) const
+{
+    // when building lists (counting/highlighting) always iterate forward
+    return search.flags & ~QTextDocument::FindBackward;
+}
+
 size_t TextMatcher::countMatches(const SearchOptions &search, bool stopAtCurrentSelection) const
 {
-    if (!search.regex.isValid() || search.regex.pattern().isEmpty())
-        return 0;
+    if (!search.regex.isValid() || search.regex.pattern().isEmpty()) return 0;
 
+    const auto flags = iterateFlagsFor(search);
     size_t count = 0;
     QTextCursor cursor(ui->textEdit->document());
     const QTextCursor &currentSelection = ui->textEdit->textCursor();
 
-    while (!(cursor = ui->textEdit->document()->find(search.regex, cursor, search.flags)).isNull()) {
+    while (!(cursor = ui->textEdit->document()->find(search.regex, cursor, flags)).isNull()) {
         ++count;
         if (stopAtCurrentSelection && cursor.selectionEnd() == currentSelection.selectionEnd()) {
             break;
@@ -116,7 +136,6 @@ size_t TextMatcher::calculateCurrentMatchIndex(const SearchOptions &search) cons
     return countMatches(search, true);
 }
 
-// --- Highlighting ---
 void TextMatcher::highlightAllMatches(const SearchOptions &search, size_t currentMatchIndex)
 {
     if (!search.regex.isValid() || search.regex.pattern().isEmpty()) {
@@ -124,11 +143,13 @@ void TextMatcher::highlightAllMatches(const SearchOptions &search, size_t curren
         return;
     }
 
+    const auto flags = iterateFlagsFor(search);
+
     QList<QTextEdit::ExtraSelection> selections;
     QTextCursor cursor(ui->textEdit->document());
     size_t index = 0;
 
-    while (!(cursor = ui->textEdit->document()->find(search.regex, cursor, search.flags)).isNull()) {
+    while (!(cursor = ui->textEdit->document()->find(search.regex, cursor, flags)).isNull()) {
         QTextEdit::ExtraSelection sel;
         sel.cursor = cursor;
 
@@ -162,7 +183,7 @@ void TextMatcher::loadTextFile()
 
 // --- Main Find Logic ---
 
-void TextMatcher::handleFindClicked()
+void TextMatcher::performFind(bool backwards)
 {
     const QString searchText = ui->lineEdit->text();
     if (searchText.isEmpty()) {
@@ -170,7 +191,9 @@ void TextMatcher::handleFindClicked()
         return;
     }
 
-    const SearchOptions search = buildSearchOptions(searchText);
+    SearchOptions search = buildSearchOptions(searchText);
+    if (backwards) search.flags |= QTextDocument::FindBackward;
+
     if (!search.regex.isValid()) {
         qWarning() << "Error: Invalid regex:" << search.regex.errorString();
         resetSearchState();
@@ -183,7 +206,9 @@ void TextMatcher::handleFindClicked()
         m_totalMatches = calculateTotalMatches(search);
         m_lastRegexPattern = search.regex.pattern();
         m_lastPatternOptions = search.patternOptions;
-        moveCursorToStart();
+
+        if (backwards) moveCursorToEnd();
+        else moveCursorToStart();
 
         if (m_totalMatches == 0) {
             resetSearchState();
@@ -193,12 +218,23 @@ void TextMatcher::handleFindClicked()
 
     // Try to find next match, restart if end reached
     if (!ui->textEdit->find(search.regex, search.flags)) {
-        moveCursorToStart();
+        if (backwards) moveCursorToEnd();
+        else moveCursorToStart();
         ui->textEdit->find(search.regex, search.flags);
     }
 
-    const size_t currentMatchIndex = calculateCurrentMatchIndex(search);
-    updateStatusLabel(currentMatchIndex, m_totalMatches);
+    size_t currentMatchIndex = calculateCurrentMatchIndex(search);
 
+    updateStatusLabel(currentMatchIndex, m_totalMatches);
     highlightAllMatches(search, currentMatchIndex);
+}
+
+void TextMatcher::handleFindNext()
+{
+    performFind(false);
+}
+
+void TextMatcher::handleFindPrevious()
+{
+    performFind(true);
 }
