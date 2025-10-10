@@ -9,7 +9,12 @@ TextMatcher::TextMatcher(QWidget *parent)
     , ui(new Ui::TextMatcher)
 {
     ui->setupUi(this);
-    connect(ui->findButton, &QPushButton::clicked, this, &TextMatcher::handleFindClicked);
+
+    auto triggerFind = [this]() { handleFindClicked(); };
+
+    connect(ui->findButton, &QPushButton::clicked, this, triggerFind);
+    connect(ui->lineEdit, &QLineEdit::returnPressed, this, triggerFind);
+
     loadTextFile();
 }
 
@@ -42,6 +47,7 @@ void TextMatcher::resetSearchState()
     m_totalMatches = 0;
     m_lastRegexPattern.clear();
     m_lastPatternOptions = QRegularExpression::NoPatternOption;
+    ui->textEdit->setExtraSelections({});
     updateStatusLabel(0, 0);
 }
 
@@ -110,6 +116,31 @@ size_t TextMatcher::calculateCurrentMatchIndex(const SearchOptions &search) cons
     return countMatches(search, true);
 }
 
+// --- Highlighting ---
+void TextMatcher::highlightAllMatches(const SearchOptions &search, size_t currentMatchIndex)
+{
+    if (!search.regex.isValid() || search.regex.pattern().isEmpty()) {
+        ui->textEdit->setExtraSelections({});
+        return;
+    }
+
+    QList<QTextEdit::ExtraSelection> selections;
+    QTextCursor cursor(ui->textEdit->document());
+    size_t index = 0;
+
+    while (!(cursor = ui->textEdit->document()->find(search.regex, cursor, search.flags)).isNull()) {
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = cursor;
+
+        ++index;
+        sel.format.setBackground(QColor(100, (index == currentMatchIndex ? 52 : 92), 17));
+
+        selections.append(sel);
+    }
+
+    ui->textEdit->setExtraSelections(selections);
+}
+
 // --- File I/O ---
 
 void TextMatcher::loadTextFile()
@@ -168,4 +199,6 @@ void TextMatcher::handleFindClicked()
 
     const size_t currentMatchIndex = calculateCurrentMatchIndex(search);
     updateStatusLabel(currentMatchIndex, m_totalMatches);
+
+    highlightAllMatches(search, currentMatchIndex);
 }

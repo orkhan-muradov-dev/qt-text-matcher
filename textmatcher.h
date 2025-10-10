@@ -52,6 +52,9 @@ private:
     size_t calculateTotalMatches(const SearchOptions &search) const;
     size_t calculateCurrentMatchIndex(const SearchOptions &search) const;
 
+    // --- Highlighting ---
+    void highlightAllMatches(const SearchOptions &search, size_t currentMatchIndex);
+
     // --- File I/O ---
     void loadTextFile();
 };
