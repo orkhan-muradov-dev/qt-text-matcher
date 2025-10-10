@@ -5,7 +5,8 @@ Evolved from the Qt "Text Finder" tutorial into **TextMatcher** with progressive
 
 ## Features
 - Qt Widgets UI (QLineEdit + Find Prev/Next + Load button + QTextEdit)
-- Load text files from disk via **Load** button (uses native file dialog).
+- Load text files from disk via **Load** button (native file dialog). The app
+  remembers the last folder used for faster subsequent opens.
 - Search uses `QRegularExpression` with input escaping by default (safe mode).
 - Whole-word matching option (wraps escaped input with `\b` anchors).
 - Case-sensitive toggle — applied consistently via both regex options and `QTextDocument::FindFlags`.
@@ -33,9 +34,6 @@ cmake ..
 cmake --build .
 ./TextMatcher
 ```
-
-## Contributing / Notes
-- Consider adding a file-recent menu or drag-and-drop file loading in a future update.
 
 ## License
 **MIT** — see [LICENSE]((./LICENSE.txt)) file.
