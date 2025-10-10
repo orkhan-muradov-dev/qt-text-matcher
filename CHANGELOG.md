@@ -9,39 +9,51 @@ The format is based on **Keep a Changelog** and this project follows Semantic Ve
 
 ---
 
+## [0.6.0] - 2025-10-10
+### Added
+- Load text files from disk via **Load** button (native QFileDialog).
+- `loadTextFromFile(path)` to safely stream file contents into the QTextEdit.
+- `SearchOptions` constructor and `isValid()` to centralize regex and find-flag construction.
+- Clear button enabled on the search field for quick clearing.
+- Window icon set using platform-style standard icon.
+- Highlight color constants (`HighlightColor`, `CurrentHighlightColor`) extracted for easier tuning.
+
+### Changed
+- Loading a file clears the search box, resets cursor and search state to avoid stale highlights/counts.
+- Minor UI polish and robustness improvements.
+
+### Notes
+- This is a minor feature release (UX + I/O). No breaking API changes.
+
+---
+
 ## [0.5.0] - 2025-10-10
 ### Added
 - Prev/Next navigation controls (UI buttons) to move between matches.
 - `performFind(bool backwards)` to support forward/backward search with consistent behavior.
-- Keyboard shortcuts: **Up** = previous match, **Down** = next match (QShortcut).
-- Press **Enter** in the search field to trigger Find Next (convenience UX).
+- Keyboard shortcuts: **Up** = previous, **Down** = next (QShortcut).
+- Press **Enter** in the search field to trigger Find Next.
 
 ### Changed
-- Counting and highlighting continue to iterate forward for lists (use `iterateFlagsFor`) while the search direction can be backwards for navigation.
-- Minor UX polish to keep highlights and status display in sync when navigating.
-
-### Notes
-- This is a UX-focused minor release (no breaking API changes). The code is prepared for future features like raw-regex mode and multi-file scanning.
+- Counting and highlighting iterate forward when building lists (iterateFlagsFor),
+  while search navigation may run backwards for match traversal.
 
 ---
 
 ## [0.4.0] - 2025-10-10
 ### Added
-- Highlight all matches in the QTextEdit using `QTextEdit::ExtraSelection`.
-- Visual emphasis for the current match.
-- Press Enter in the search input to trigger a search.
+- Highlight all matches using `QTextEdit::ExtraSelection`.
+- Visual emphasis for current match.
+- Press Enter to trigger search.
 
 ### Changed
-- `resetSearchState()` clears extra selections to remove highlights on reset.
+- `resetSearchState()` clears extra selections on reset.
 
 ---
 
 ## [0.3.0] - 2025-10-10
 ### Added
-- Introduce `SearchOptions` abstraction (regex, pattern options, and QTextDocument::FindFlags).
-
-### Changed
-- Refactor search logic: count and index functions accept `SearchOptions`.
+- `SearchOptions` abstraction (regex, pattern options, and QTextDocument::FindFlags) to unify behavior.
 
 ---
 
@@ -53,4 +65,4 @@ The format is based on **Keep a Changelog** and this project follows Semantic Ve
   match counting and status label, refactor to TextMatcher.
 
 ## [0.1.0] - 2025-09-28
-- Initial Qt tutorial-based import and baseline whole-word search.
+- Initial Qt tutorial-based import with basic whole-word search and resource loading from `:/input.txt`.
