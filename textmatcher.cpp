@@ -1,5 +1,6 @@
 #include "textmatcher.h"
 #include "./ui_textmatcher.h"
+
 #include <QStyle>
 #include <QFile>
 #include <QTextStream>
@@ -9,6 +10,9 @@
 
 // --- Local Constants ---
 namespace {
+    constexpr auto DEFAULT_INPUT_FILE = ":/input.txt";
+    constexpr auto FILE_DIALOG_FILTER = "Text Files (*.txt);;All Files (*)";
+
     const QColor HighlightColor(100, 92, 17);
     const QColor CurrentHighlightColor(100, 52, 17);
 }
@@ -45,51 +49,67 @@ TextMatcher::TextMatcher(QWidget *parent)
     ui->setupUi(this);
     setWindowIcon(style()->standardIcon(QStyle::SP_FileDialogContentsView));
 
-    // Buttons
+    setupConnections();
+    setupKeyboardShortcuts();
+    loadTextFromFile(DEFAULT_INPUT_FILE);
+}
+
+TextMatcher::~TextMatcher() { delete ui; }
+
+// --- Initialization Methods ---
+
+void TextMatcher::setupConnections()
+{
+    // Button connections
     connect(ui->findNextButton, &QPushButton::clicked, this, &TextMatcher::handleFindNext);
     connect(ui->findPrevButton, &QPushButton::clicked, this, &TextMatcher::handleFindPrevious);
     connect(ui->loadFileButton, &QPushButton::clicked, this, &TextMatcher::handleLoadFile);
 
-    // Enter in the search field => Find Next
-    connect(ui->lineEdit, &QLineEdit::returnPressed, this, &TextMatcher::handleFindNext);
-
-    // Keyboard shortcuts: Up/Down = previous/next
-    new QShortcut(QKeySequence(Qt::Key_Up), this, SLOT(handleFindPrevious()));
-    new QShortcut(QKeySequence(Qt::Key_Down), this, SLOT(handleFindNext()));
-
-    // Load default text
-    loadTextFromFile(":/input.txt");
+    // Enter key in search field triggers find next
+    connect(ui->lineEdit, &QLineEdit::returnPressed, this, [this]() {
+        ui->findNextButton->animateClick();
+    });
 }
 
-TextMatcher::~TextMatcher()
+void TextMatcher::setupKeyboardShortcuts()
 {
-    delete ui;
+    // Down arrow - find next
+    auto *shortcutDown = new QShortcut(QKeySequence(Qt::Key_Down), this);
+    connect(shortcutDown, &QShortcut::activated, this, [this]() {
+        ui->findNextButton->animateClick();
+    });
+
+    // Up arrow - find previous
+    auto *shortcutUp = new QShortcut(QKeySequence(Qt::Key_Up), this);
+    connect(shortcutUp, &QShortcut::activated, this, [this]() {
+        ui->findPrevButton->animateClick();
+    });
 }
 
-// --- Cursor Utility ---
+// --- Cursor Management ---
 
 void TextMatcher::moveCursorToStart()
 {
-    QTextCursor c = ui->textEdit->textCursor();
-    c.movePosition(QTextCursor::Start);
-    ui->textEdit->setTextCursor(c);
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.movePosition(QTextCursor::Start);
+    ui->textEdit->setTextCursor(cursor);
 }
 
 void TextMatcher::moveCursorToEnd()
 {
-    QTextCursor c = ui->textEdit->textCursor();
-    c.movePosition(QTextCursor::End);
-    ui->textEdit->setTextCursor(c);
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->textEdit->setTextCursor(cursor);
 }
 
 void TextMatcher::clearTextSelection()
 {
-    QTextCursor c = ui->textEdit->textCursor();
-    c.clearSelection();
-    ui->textEdit->setTextCursor(c);
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.clearSelection();
+    ui->textEdit->setTextCursor(cursor);
 }
 
-// --- Status Management ---
+// --- Search State ---
 
 void TextMatcher::resetSearchState()
 {
@@ -103,14 +123,20 @@ void TextMatcher::resetSearchState()
 
 void TextMatcher::updateStatusLabel(size_t currentMatchIndex, size_t totalMatches)
 {
-    ui->statusLabel->setText(QString("Matches: %1/%2").arg(currentMatchIndex).arg(totalMatches));
+    ui->statusLabel->setText(tr("Matches: %1/%2").arg(currentMatchIndex).arg(totalMatches));
+}
+
+bool TextMatcher::isNewSearch(const SearchOptions &search) const
+{
+    return search.regex.pattern() != m_lastRegexPattern ||
+           search.patternOptions != m_lastPatternOptions;
 }
 
 // --- Search Logic ---
 
 QTextDocument::FindFlags TextMatcher::iterateFlagsFor(const SearchOptions &search) const
 {
-    // always iterate forward when counting/highlighting
+    // Always iterate forward when counting/highlighting (mask out FindBackward)
     return search.flags & ~QTextDocument::FindBackward;
 }
 
@@ -119,10 +145,10 @@ size_t TextMatcher::countMatches(const SearchOptions &search, bool stopAtCurrent
     if (!search.isValid()) return 0;
 
     const auto flags = iterateFlagsFor(search);
-    size_t count = 0;
     QTextCursor cursor(ui->textEdit->document());
     const QTextCursor &currentSelection = ui->textEdit->textCursor();
 
+    size_t count = 0;
     while (!(cursor = ui->textEdit->document()->find(search.regex, cursor, flags)).isNull()) {
         ++count;
         if (stopAtCurrentSelection && cursor.selectionEnd() == currentSelection.selectionEnd()) {
@@ -156,48 +182,16 @@ void TextMatcher::highlightAllMatches(const SearchOptions &search, size_t curren
 
     size_t index = 0;
     while (!(cursor = ui->textEdit->document()->find(search.regex, cursor, flags)).isNull()) {
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = cursor;
         ++index;
-        sel.format.setBackground(index == currentMatchIndex ? CurrentHighlightColor : HighlightColor);
-        selections.append(sel);
+
+        QTextEdit::ExtraSelection selection;
+        selection.cursor = cursor;
+
+        selection.format.setBackground(index == currentMatchIndex ? CurrentHighlightColor : HighlightColor);
+        selections.append(selection);
     }
 
     ui->textEdit->setExtraSelections(selections);
-}
-
-// --- File I/O ---
-
-void TextMatcher::loadTextFromFile(const QString &path)
-{
-    QFile inputFile(path);
-    if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Error: Could not open file:" << path;
-        ui->textEdit->setPlainText("Error: Could not load file.");
-        return;
-    }
-
-    QTextStream in(&inputFile);
-    ui->textEdit->setPlainText(in.readAll());
-    inputFile.close();
-
-    ui->lineEdit->clear();
-    moveCursorToStart();
-    resetSearchState();
-}
-
-void TextMatcher::handleLoadFile()
-{
-    QString fileName = QFileDialog::getOpenFileName(
-        this,
-        tr("Open Text File"),
-        QString(),
-        tr("Text Files (*.txt);;All Files (*)"));
-
-    if (fileName.isEmpty())
-        return;
-
-    loadTextFromFile(fileName);
 }
 
 // --- Main Find Logic ---
@@ -216,11 +210,11 @@ void TextMatcher::performFind(bool backwards)
         resetSearchState();
         return;
     }
+
+    // Set search direction
     if (backwards) search.flags |= QTextDocument::FindBackward;
 
-    const bool newSearch = (search.regex.pattern() != m_lastRegexPattern ||
-                            search.patternOptions != m_lastPatternOptions);
-    if (newSearch) {
+    if (isNewSearch(search)) {
         m_totalMatches = calculateTotalMatches(search);
         m_lastRegexPattern = search.regex.pattern();
         m_lastPatternOptions = search.patternOptions;
@@ -239,12 +233,51 @@ void TextMatcher::performFind(bool backwards)
         ui->textEdit->find(search.regex, search.flags);
     }
 
+    // Update UI
     size_t currentMatchIndex = calculateCurrentMatchIndex(search);
-
     updateStatusLabel(currentMatchIndex, m_totalMatches);
     highlightAllMatches(search, currentMatchIndex);
 }
 
+// --- File I/O ---
+
+void TextMatcher::loadTextFromFile(const QString &path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Error: Could not open file:" << path;
+        ui->textEdit->setPlainText(tr("Error: Could not load file."));
+        return;
+    }
+
+    QTextStream stream(&file);
+    ui->textEdit->setPlainText(stream.readAll());
+    file.close();
+
+    QFileInfo fi(path);
+    m_lastFolder = fi.absolutePath();
+
+    // Reset UI state
+    ui->lineEdit->clear();
+    moveCursorToStart();
+    resetSearchState();
+}
+
 // --- Slots ---
+
 void TextMatcher::handleFindNext() { performFind(false); }
+
 void TextMatcher::handleFindPrevious() { performFind(true); }
+
+void TextMatcher::handleLoadFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(
+        this,
+        tr("Open Text File"),
+        m_lastFolder.isEmpty() ? QString() : m_lastFolder,
+        tr(FILE_DIALOG_FILTER)
+    );
+
+    if (!fileName.isEmpty())
+        loadTextFromFile(fileName);
+}

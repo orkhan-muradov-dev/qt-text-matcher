@@ -41,15 +41,21 @@ private:
     size_t m_totalMatches = 0;
     QString m_lastRegexPattern;
     QRegularExpression::PatternOptions m_lastPatternOptions;
+    QString m_lastFolder;
 
-    // --- Cursor Utility ---
+    // --- Initialization ---
+    void setupConnections();
+    void setupKeyboardShortcuts();
+
+    // --- Cursor Management ---
     void moveCursorToStart();
     void moveCursorToEnd();
     void clearTextSelection();
 
-    // --- Status Management ---
+    // --- Search State ---
     void resetSearchState();
     void updateStatusLabel(size_t currentMatchIndex, size_t totalMatches);
+    bool isNewSearch(const SearchOptions &search) const;
 
     // --- Search Logic ---
     size_t countMatches(const SearchOptions &search, bool stopAtCurrentSelection) const;
