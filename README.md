@@ -1,6 +1,6 @@
 # Qt Text Matcher
 
-A small Qt Widgets application for searching and matching text inside files.
+A Qt Widgets application for searching and matching text inside files.
 Evolved from the Qt "Text Finder" tutorial into **TextMatcher** with progressive enhancements.
 
 ## Features
@@ -12,6 +12,9 @@ Evolved from the Qt "Text Finder" tutorial into **TextMatcher** with progressive
 - Centralized `SearchOptions` abstraction (pattern + find flags) to ensure
   consistent behavior across searching and counting
 - Match counting with a status label: shows current match index and total (e.g., `Matches: 3/10`)
+- **Highlights all matches** in the document using `QTextEdit::ExtraSelection`
+  and visually emphasizes the current match for easier navigation
+- Press **Enter** in the search field to trigger a search (convenience UX)
 - Proper handling for empty input and invalid regex patterns
 - Loads initial content from Qt resources (`:/input.txt`)
 - Simple, easy-to-understand codebase for learning Qt Widgets, signals/slots, and text processing
@@ -29,7 +32,8 @@ cmake --build .
 
 ## Contributing / Notes
 - By default the app escapes user input to avoid accidental regex injection and unexpected matches.
-- The SearchOptions abstraction makes it straightforward to later add features (e.g., "raw regex" advanced mode, whole-directory search, or thread-pool scanning).
+- To allow raw regex input later, add an “Advanced: raw regex” option that bypasses escaping in `createRegexPattern()`.
+- `highlightAllMatches()` uses `QTextEdit::ExtraSelection`; colors are basic and can be tuned for accessibility.
 
 ## License
 **MIT** — see [LICENSE]((./LICENSE.txt)) file.
