@@ -2,6 +2,7 @@
 #define TEXTMATCHER_H
 
 #include <QWidget>
+#include <QTextDocument>
 #include <QRegularExpression>
 
 QT_BEGIN_NAMESPACE
@@ -23,10 +24,17 @@ private:
     // --- UI Pointer ---
     Ui::TextMatcher *ui;
 
+    // --- Search Options Struct ---
+    struct SearchOptions {
+        QRegularExpression regex;
+        QTextDocument::FindFlags flags;
+        QRegularExpression::PatternOptions patternOptions;
+    };
+
     // --- State Variables ---
     size_t m_totalMatches = 0;
-    QString m_lastRegexString;
-    QRegularExpression::PatternOptions m_lastRegexOptions;
+    QString m_lastRegexPattern;
+    QRegularExpression::PatternOptions m_lastPatternOptions;
 
     // --- Cursor Utility ---
     void moveCursorToStart();
@@ -36,11 +44,13 @@ private:
     void resetSearchState();
     void updateStatusLabel(size_t currentMatchIndex, size_t totalMatches);
 
-    // --- Match Calculation ---
-    QString createRegexString(const QString &searchString) const;
-    size_t countMatches(const QRegularExpression &regex, bool stopAtCurrentSelection) const;
-    size_t calculateTotalMatches(const QRegularExpression &regex) const;
-    size_t calculateCurrentMatchIndex(const QRegularExpression &regex) const;
+    // --- Search Logic ---
+    QString createRegexPattern(const QString &searchText) const;
+    SearchOptions buildSearchOptions(const QString &searchText) const;
+
+    size_t countMatches(const SearchOptions &search, bool stopAtCurrentSelection) const;
+    size_t calculateTotalMatches(const SearchOptions &search) const;
+    size_t calculateCurrentMatchIndex(const SearchOptions &search) const;
 
     // --- File I/O ---
     void loadTextFile();
