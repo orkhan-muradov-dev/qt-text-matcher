@@ -20,6 +20,7 @@ public:
 private slots:
     void handleFindNext();
     void handleFindPrevious();
+    void handleLoadFile();
 
 private:
     // --- UI Pointer ---
@@ -30,6 +31,10 @@ private:
         QRegularExpression regex;
         QTextDocument::FindFlags flags;
         QRegularExpression::PatternOptions patternOptions;
+
+        SearchOptions(const QString &text, bool wholeWord, bool caseSensitive);
+
+        bool isValid() const;
     };
 
     // --- State Variables ---
@@ -47,22 +52,16 @@ private:
     void updateStatusLabel(size_t currentMatchIndex, size_t totalMatches);
 
     // --- Search Logic ---
-    QString createRegexPattern(const QString &searchText) const;
-    SearchOptions buildSearchOptions(const QString &searchText) const;
-
     size_t countMatches(const SearchOptions &search, bool stopAtCurrentSelection) const;
     size_t calculateTotalMatches(const SearchOptions &search) const;
     size_t calculateCurrentMatchIndex(const SearchOptions &search) const;
-
-    // produce flags used for forward iteration (mask out FindBackward)
-    QTextDocument::FindFlags iterateFlagsFor(const SearchOptions &search) const;
+    QTextDocument::FindFlags iterateFlagsFor(const SearchOptions &search) const; // for forward iteration (mask out FindBackward)
 
     void highlightAllMatches(const SearchOptions &search, size_t currentMatchIndex);
-
     void performFind(bool backwards);
 
     // --- File I/O ---
-    void loadTextFile();
+    void loadTextFromFile(const QString &path);
 };
 
 #endif // TEXTMATCHER_H
