@@ -4,7 +4,7 @@ A Qt Widgets application for searching and matching text inside files.
 Evolved from the Qt "Text Finder" tutorial into **TextMatcher** with progressive enhancements.
 
 ## Features
-- Qt Widgets UI (QLineEdit + Find button + QTextEdit)
+- Qt Widgets UI (QLineEdit + Find Prev/Next buttons + QTextEdit)
 - Search uses `QRegularExpression` with input escaping by default (safe mode)
 - Whole-word matching option (wraps escaped input with `\b` anchors)
 - Case-sensitive toggle — applied consistently via both regex options and
@@ -12,9 +12,12 @@ Evolved from the Qt "Text Finder" tutorial into **TextMatcher** with progressive
 - Centralized `SearchOptions` abstraction (pattern + find flags) to ensure
   consistent behavior across searching and counting
 - Match counting with a status label: shows current match index and total (e.g., `Matches: 3/10`)
-- **Highlights all matches** in the document using `QTextEdit::ExtraSelection`
-  and visually emphasizes the current match for easier navigation
-- Press **Enter** in the search field to trigger a search (convenience UX)
+- Highlights all matches in the document using `QTextEdit::ExtraSelection` and
+  visually emphasizes the current match for easier navigation
+- Navigation controls:
+  - **Prev / Next** buttons (UI) to move between matches
+  - Press **Enter** in the search field to trigger Find Next
+  - Keyboard shortcuts: **Up** = previous, **Down** = next
 - Proper handling for empty input and invalid regex patterns
 - Loads initial content from Qt resources (`:/input.txt`)
 - Simple, easy-to-understand codebase for learning Qt Widgets, signals/slots, and text processing
