@@ -62,19 +62,19 @@ TextMatcher is a cross-platform desktop application for efficient text search an
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="media/feature-highlighted-matches.png" width="100%"/>
+      <img src="media/feature-highlighted-matches.png" width="50%"/>
       <br><b>🎯 Multi-Match Highlighting</b>
       <br><i>All matches highlighted, current match emphasized</i>
     </td>
     <td align="center" width="50%">
-      <img src="media/option-whole-word.png" width="100%"/>
+      <img src="media/option-whole-word.png" width="50%"/>
       <br><b>📝 Whole Word Search</b>
       <br><i>Find "run" without matching "running"</i>
     </td>
   </tr>
   <tr>
     <td align="center" width="50%">
-      <img src="media/option-case-sensitive.png" width="100%"/>
+      <img src="media/option-case-sensitive.png" width="50%"/>
       <br><b>🔤 Case Sensitive Mode</b>
       <br><i>Distinguish "Apple" from "apple"</i>
     </td>
