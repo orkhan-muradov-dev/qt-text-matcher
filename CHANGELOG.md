@@ -16,6 +16,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.2] - 2025-10-11
+
+### Added
+- Keyboard toggles:
+  - Alt+S -> toggle Case Sensitive
+  - Alt+W -> toggle Whole Word
+- Demo GIF added to README for an animated preview.
+
+### Fixed
+- Clear-on-empty bug: search now resets when the search field is cleared (clear button or manual deletion).
+- Reordered resetSearchState() logic to avoid stale selection and indexing after clearing the search.
+
+### Changed
+- Replaced explicit clear slot with inline lambda handlers for a simpler and more consistent action path.
+- Minor qrc path cleanup.
+
+---
+
 ## [0.8.1] - 2025-10-11
 
 ### Fixed
