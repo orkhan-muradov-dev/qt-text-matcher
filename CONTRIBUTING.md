@@ -59,23 +59,23 @@ Before creating a bug report, search [existing issues](https://github.com/orkhan
 **Good bug reports include:**
 
 ```markdown
-**Environment:**
+Environment:
 - OS: Ubuntu 22.04 LTS
 - Qt Version: 6.5.0
 - Compiler: GCC 11.3.0
 
-**Steps to Reproduce:**
+Steps to Reproduce:
 1. Load file with 1000+ lines
 2. Search for "test"
 3. Click "Find Next" rapidly
 
-**Expected Behavior:**
+Expected Behavior:
 Smooth navigation through matches
 
-**Actual Behavior:**
+Actual Behavior:
 UI freezes for 2 seconds
 
-**Additional Context:**
+Additional Context:
 File size: 5MB, occurs consistently with large files
 ```
 
@@ -91,15 +91,15 @@ Feature requests should include:
 **Example:**
 
 ```markdown
-**Problem:** No way to save frequently used search patterns
+Problem: No way to save frequently used search patterns
 
-**Solution:** Add search history dropdown (last 10 searches)
+Solution: Add search history dropdown (last 10 searches)
 
-**Use Cases:**
+Use Cases:
 - Developers checking recurring error patterns
 - Writers verifying character name consistency
 
-**Implementation:** Store in QSettings, add clear history option
+Implementation: Store in QSettings, add clear history option
 ```
 
 ### Contributing Code
