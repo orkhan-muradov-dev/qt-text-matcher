@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.4] - 2025-10-11
+
+### Docs
+- README: center header and embed demo GIF with width=400 for improved layout and portfolio presentation.
+
+---
+
 ## [0.8.3] - 2025-10-11
 
 ### Fixed
