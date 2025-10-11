@@ -1,1 +1,0 @@
-The quick brown fox jumps over the lazy dog. This sentence is a classic pangram, often used for testing font and keyboard layouts because it contains every letter of the English alphabet. It’s also excellent for simple word-finding exercises.
