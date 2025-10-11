@@ -365,7 +365,7 @@ TextMatcher/
 │   ├── 📝 textmatcher.qrc   # Qt resources (embedded files)
 │   └── 📄 input.txt         # Embedded sample text
 │
-└── 📁 media/                # Screenshots
+└── 📁 media/                # Screenshots, gifs
 ```
 
 ### Key Components

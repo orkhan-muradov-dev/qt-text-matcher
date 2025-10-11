@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![TextMatcher Banner](media/app-overview.png)
+![TextMatcher demo](media/demo-navigation.gif)
 
 **A powerful text search and navigation tool built with Qt6 and modern C++**
 
@@ -367,7 +367,7 @@ TextMatcher/
 │   ├── 📝 textmatcher.qrc   # Qt resources (embedded files)
 │   └── 📄 input.txt         # Embedded sample text
 │
-└── 📁 media/                # Screenshots
+└── 📁 media/                # Screenshots, gifs
 ```
 
 ### Core Components
