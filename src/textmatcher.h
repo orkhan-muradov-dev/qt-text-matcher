@@ -21,7 +21,6 @@ private slots:
     void handleFindNext();
     void handleFindPrevious();
     void handleLoadFile();
-    void handleClearLineEdit();
 
 private:
     // --- UI Pointer ---

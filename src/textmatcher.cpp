@@ -69,6 +69,13 @@ void TextMatcher::setupConnections()
     connect(ui->lineEdit, &QLineEdit::returnPressed, this, [this]() {
         ui->findNextButton->animateClick();
     });
+
+    // Reset state if text is cleared (via clear button or manual deletion)
+    connect(ui->lineEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
+        if (text.isEmpty()) {
+            resetSearchState();
+        }
+    });
 }
 
 void TextMatcher::setupKeyboardShortcuts()
@@ -86,16 +93,31 @@ void TextMatcher::setupKeyboardShortcuts()
     });
 
     // Ctrl+O - Open File
-    auto *shortcutOpen = new QShortcut(QKeySequence(QKeySequence::Open), this);
+    auto *shortcutOpen = new QShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_O), this);
     connect(shortcutOpen, &QShortcut::activated, ui->loadFileButton, &QPushButton::animateClick);
 
     // Ctrl+L - Clear Line Edit
-    auto *shortcutClear = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_L), this);
-    connect(shortcutClear, &QShortcut::activated, this, &TextMatcher::handleClearLineEdit);
+    auto *shortcutClear = new QShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_L), this);
+    connect(shortcutClear, &QShortcut::activated, this, [this](){
+        ui->lineEdit->clear();
+        ui->lineEdit->setFocus();
+    });
 
     // Ctrl+Q - Quit application
-    auto *shortcutQuit = new QShortcut(QKeySequence(Qt::ControlModifier + Qt::Key_Q), this);
+    auto *shortcutQuit = new QShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_Q), this);
     connect(shortcutQuit, &QShortcut::activated, qApp, &QApplication::quit);
+
+    // Alt+S - Toggle Case Sensitive
+    auto *shortcutCaseSensitive = new QShortcut(QKeySequence(Qt::AltModifier | Qt::Key_S), this);
+    connect(shortcutCaseSensitive, &QShortcut::activated, this, [this](){
+        ui->caseSensitiveCheckbox->setChecked(!ui->caseSensitiveCheckbox->isChecked());
+    });
+
+    // Alt+W - Toggle Whole Word
+    auto *shortcutWholeWord = new QShortcut(QKeySequence(Qt::AltModifier | Qt::Key_W), this);
+    connect(shortcutWholeWord, &QShortcut::activated, this, [this](){
+        ui->wholeWordCheckbox->setChecked(!ui->wholeWordCheckbox->isChecked());
+    });
 }
 
 // --- Cursor Management ---
@@ -125,10 +147,10 @@ void TextMatcher::clearTextSelection()
 
 void TextMatcher::resetSearchState()
 {
-    clearTextSelection();
     m_totalMatches = 0;
     m_lastRegexPattern.clear();
     m_lastPatternOptions = QRegularExpression::NoPatternOption;
+    clearTextSelection();
     ui->textEdit->setExtraSelections({});
     updateStatusLabel(0, 0);
 }
@@ -211,10 +233,7 @@ void TextMatcher::highlightAllMatches(const SearchOptions &search, size_t curren
 void TextMatcher::performFind(bool backwards)
 {
     const QString searchText = ui->lineEdit->text();
-    if (searchText.isEmpty()) {
-        resetSearchState();
-        return;
-    }
+    if (searchText.isEmpty()) return;
 
     SearchOptions search(searchText, ui->wholeWordCheckbox->isChecked(), ui->caseSensitiveCheckbox->isChecked());
     if (!search.isValid()) {
@@ -294,11 +313,4 @@ void TextMatcher::handleLoadFile()
 
     if (!fileName.isEmpty())
         loadTextFromFile(fileName);
-}
-
-void TextMatcher::handleClearLineEdit()
-{
-    ui->lineEdit->clear();
-    resetSearchState();
-    ui->lineEdit->setFocus();
 }
