@@ -1,19 +1,19 @@
-# TextMatcher 🔍
+<h1 align="center">TextMatcher 🔍</h1>
 
 <div align="center">
 
-![TextMatcher demo](media/demo-navigation.gif)
+   <em>A powerful text search and navigation tool built with Qt6 and modern C++</em>
 
-**A powerful text search and navigation tool built with Qt6 and modern C++**
+   <img src="media/demo-navigation.gif" width="400" alt="TextMatcher Demo"/>
 
-[![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C.svg?style=flat&logo=c%2B%2B)](https://isocpp.org/)
-[![Qt6](https://img.shields.io/badge/Qt-6.0%2B-41CD52.svg?style=flat&logo=qt)](https://www.qt.io/)
-[![CMake](https://img.shields.io/badge/CMake-3.16%2B-064F8C.svg?style=flat&logo=cmake)](https://cmake.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg?style=flat)](https://doc.qt.io/qt-6/supported-platforms.html)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](CONTRIBUTING.md)
+   [![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C.svg?style=flat&logo=c%2B%2B)](https://isocpp.org/)
+   [![Qt6](https://img.shields.io/badge/Qt-6.0%2B-41CD52.svg?style=flat&logo=qt)](https://www.qt.io/)
+   [![CMake](https://img.shields.io/badge/CMake-3.16%2B-064F8C.svg?style=flat&logo=cmake)](https://cmake.org/)
+   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](LICENSE)
+   [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg?style=flat)](https://doc.qt.io/qt-6/supported-platforms.html)
+   [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](CONTRIBUTING.md)
 
-[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Contributing](#-contributing)
+   [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Contributing](#-contributing)
 
 </div>
 
@@ -798,14 +798,14 @@ Special thanks to:
 
 <div align="center">
 
-**[⬆ Back to Top](#textmatcher-)**
+   **[⬆ Back to Top](#textmatcher-)**
 
-Made with ❤️ by [Orkhan Muradov](https://github.com/orkhan-muradov-dev)
+   Made with ❤️ by [Orkhan Muradov](https://github.com/orkhan-muradov-dev)
 
-If this project helped you, consider giving it a ⭐!
+   If this project helped you, consider giving it a ⭐!
 
-[Report Bug](https://github.com/orkhan-muradov-dev/qt-text-matcher/issues) •
-[Request Feature](https://github.com/orkhan-muradov-dev/qt-text-matcher/issues) •
-[Contribute](CONTRIBUTING.md)
+   [Report Bug](https://github.com/orkhan-muradov-dev/qt-text-matcher/issues) •
+   [Request Feature](https://github.com/orkhan-muradov-dev/qt-text-matcher/issues) •
+   [Contribute](CONTRIBUTING.md)
 
 </div>
