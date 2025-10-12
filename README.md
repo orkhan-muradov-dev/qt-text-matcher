@@ -46,7 +46,7 @@ TextMatcher is a cross-platform desktop application for efficient text search an
 - **Current Match Emphasis** - Distinct color for active result
 - **Match Counter** - Shows position like "Matches: 3/47"
 - **File Loading** - Native file dialogs with directory memory
-- **Keyboard Shortcuts** - Arrow keys, Enter, Ctrl+O, Ctrl+L, Ctrl+Q, Alt+W, Alt+s
+- **Keyboard Shortcuts** - Arrow keys, Enter, Ctrl+O, Ctrl+L, Ctrl+Q, Alt+W, Alt+S
 
 ### ⚡ Performance
 - **Optimized Counting** - Early exit algorithm for current position
@@ -309,8 +309,8 @@ cmake .. -DCMAKE_CXX_COMPILER=g++-12
    - Watch the counter update (e.g., "Matches: 5/23")
 
 3. **Refine Search**
-   - Check **Whole Word** to match complete words only
-   - Check **Case Sensitive** for exact case matching
+   - Check **Whole Word** (`Alt+W`) to match complete words only
+   - Check **Case Sensitive** (`Alt+S`) for exact case matching
    - Search automatically updates
 
 4. **Load Your Files**
@@ -329,16 +329,16 @@ cmake .. -DCMAKE_CXX_COMPILER=g++-12
 
 ## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Action            | Description                                  |
-|----------|-------------------|----------------------------------------------|
-| `Enter`  | Find Next         | Search forward from current position         |
-| `↓`      | Find Next         | Alternative to Enter                         |
-| `↑`      | Find Previous     | Search backward from current position        |
-| `Ctrl+O` | Open File         | Load a new text file                         |
-| `Ctrl+L` | Clear Search      | Remove search term and reset highlights      |
-| `Ctrl+Q` | Quit              | Exit application                             |
-| `Alt+W`  | Toggle Whole Word | Toggle the "Whole Word" checkbox (Alt+W)     |
-| `Alt+S`  | Toggle Case Sens. | Toggle the "Case Sensitive" checkbox (Alt+S) |
+| Shortcut | Action            | Description                             |
+|----------|-------------------|-----------------------------------------|
+| `Enter`  | Find Next         | Search forward from current position    |
+| `↓`      | Find Next         | Alternative to Enter                    |
+| `↑`      | Find Previous     | Search backward from current position   |
+| `Ctrl+O` | Open File         | Load a new text file                    |
+| `Ctrl+L` | Clear Search      | Remove search term and reset highlights |
+| `Ctrl+Q` | Quit              | Exit application                        |
+| `Alt+W`  | Toggle Whole Word | Toggle the "Whole Word" checkbox        |
+| `Alt+S`  | Toggle Case Sens. | Toggle the "Case Sensitive" checkbox    |
 
 **Tip:** Arrow keys work from anywhere in the application, making navigation seamless.
 
@@ -557,7 +557,7 @@ Planned additions:
 
 ## 🗺️ Roadmap
 
-### Current Version (0.8.0)
+### Current Version (0.8.3)
 - [x] Core search functionality
 - [x] Dual-color highlighting
 - [x] Keyboard shortcuts
