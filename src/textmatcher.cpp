@@ -107,16 +107,16 @@ void TextMatcher::setupKeyboardShortcuts()
     auto *shortcutQuit = new QShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_Q), this);
     connect(shortcutQuit, &QShortcut::activated, qApp, &QApplication::quit);
 
-    // Alt+S - Toggle Case Sensitive
-    auto *shortcutCaseSensitive = new QShortcut(QKeySequence(Qt::AltModifier | Qt::Key_S), this);
-    connect(shortcutCaseSensitive, &QShortcut::activated, this, [this](){
-        ui->caseSensitiveCheckbox->setChecked(!ui->caseSensitiveCheckbox->isChecked());
-    });
-
     // Alt+W - Toggle Whole Word
     auto *shortcutWholeWord = new QShortcut(QKeySequence(Qt::AltModifier | Qt::Key_W), this);
     connect(shortcutWholeWord, &QShortcut::activated, this, [this](){
         ui->wholeWordCheckbox->setChecked(!ui->wholeWordCheckbox->isChecked());
+    });
+
+    // Alt+S - Toggle Case Sensitive
+    auto *shortcutCaseSensitive = new QShortcut(QKeySequence(Qt::AltModifier | Qt::Key_S), this);
+    connect(shortcutCaseSensitive, &QShortcut::activated, this, [this](){
+        ui->caseSensitiveCheckbox->setChecked(!ui->caseSensitiveCheckbox->isChecked());
     });
 }
 

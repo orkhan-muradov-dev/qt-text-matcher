@@ -16,17 +16,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.8.4] - 2025-10-11
+## [0.8.3] - 2025-10-12
 
-### Docs
-- README: center header and embed demo GIF with width=400 for improved layout and portfolio presentation.
+### Added
+- Replaced `media/demo-navigation.gif` with a cropped version to remove black edges (cleaner demo).
+- README: Centered header and embedded demo GIF at `width="400"` for a balanced, portfolio-friendly top section.
+- Documented keyboard shortcuts (`Alt+S` — toggle Case Sensitive, `Alt+W` — toggle Whole Word).
 
----
+### Changed
+- Reordered shortcut registration block (shortcut order now matches app sequence — Alt+W then Alt+S).
 
-## [0.8.3] - 2025-10-11
-
-### Fixed
-- Replace demo GIF (media/demo-navigation.gif) to remove black edges for improved visuals.
+### Notes
+- This release consolidates docs/media tweaks and small UX/keyboard improvements; no breaking changes.
 
 ---
 
@@ -40,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Clear-on-empty bug: search now resets when the search field is cleared (clear button or manual deletion).
-- Reordered resetSearchState() logic to avoid stale selection and indexing after clearing the search.
+- Reordered `resetSearchState()` logic to avoid stale selection and indexing after clearing the search.
 
 ### Changed
 - Replaced explicit clear slot with inline lambda handlers for a simpler and more consistent action path.
